@@ -17,6 +17,7 @@
 #include <rtthread.h>
 #include <lcd_port.h>
 #include <lite_gui.h>
+#include "../../../components/lite_gui/widget/widget_dc.h"
 
 #ifdef RT_USING_DFS
 /* dfs filesystem:ELM filesystem init */
@@ -46,6 +47,17 @@ void rt_init_thread_entry(void *parameter) {
 #ifdef USING_LITE_GUI
     rt_hw_lcd_init();
     lite_gui_hw_init(rt_device_find("lcd"));
+    lite_gui_widget_dc_t dock_dc = malloc(sizeof(struct lite_gui_widget_dc));
+    dock_dc = lite_gui_widget_dc_init(dock_dc, hardware_dc, 0, (rt_int16_t) (hardware_dc->height - 60),
+                                      hardware_dc->width, 60);
+    dock_dc->base.brush_color = rgb(0, 155, 255);
+    dock_dc->base.clear((struct lite_gui_dc *) dock_dc);
+    dock_dc->base.brush_color = rgb(173, 255, 255);
+    for (rt_uint16_t i = 0; i < 4; ++i) {
+        dock_dc->base.fill_rounded_rectangle((struct lite_gui_dc *) dock_dc, (rt_uint16_t) (4 + (55 + 5) * i), 5,
+                                             (rt_uint16_t) (55 + (55 + 5) * i), 55,
+                                             8);
+    }
 #endif
 }
 

@@ -37,7 +37,15 @@ struct lite_gui_dc {
                         rt_uint16_t center_x, rt_uint16_t center_y,
                         rt_uint16_t radius);
 
+    void (*fill_circle)(struct lite_gui_dc *dc, rt_uint16_t center_x, rt_uint16_t center_y,
+                        rt_uint16_t radius);
+
     void (*draw_rounded_rectangle)(struct lite_gui_dc *dc,
+                                   rt_uint16_t left_top_x, rt_uint16_t left_top_y,
+                                   rt_uint16_t right_bottom_x, rt_uint16_t right_bottom_y,
+                                   rt_uint16_t round_radius);
+
+    void (*fill_rounded_rectangle)(struct lite_gui_dc *dc,
                                    rt_uint16_t left_top_x, rt_uint16_t left_top_y,
                                    rt_uint16_t right_bottom_x, rt_uint16_t right_bottom_y,
                                    rt_uint16_t round_radius);
@@ -48,7 +56,6 @@ struct lite_gui_dc {
 
     void (*draw_ascii_string)(struct lite_gui_dc *dc, rt_uint16_t left_top_x, rt_uint16_t left_top_y,
                               char *string);
-
 };
 
 typedef struct lite_gui_dc *lite_gui_dc_t;

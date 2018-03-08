@@ -175,4 +175,5 @@
 
 #define RT_USING_CPU_FFS
 #define USING_LITE_GUI
+#define LCD_9341
 #endif

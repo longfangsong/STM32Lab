@@ -1,16 +1,18 @@
 #ifndef __LCD_H
 #define __LCD_H
+
 #include <rtthread.h>
+
 // LCD重要参数集
 typedef struct {
-  rt_uint16_t width;   // LCD 宽度
-  rt_uint16_t height;  // LCD 高度
-  rt_uint16_t id;      // LCD ID
-  rt_uint8_t dir;      //横屏还是竖屏控制：0，竖屏；1，横屏。
-  rt_uint16_t wramcmd; //开始写gram指令
-  rt_uint16_t setxcmd; //设置x坐标指令
-  rt_uint16_t setycmd; //设置y坐标指令
-} _lcd_dev;
+    rt_uint16_t width;   // LCD 宽度
+    rt_uint16_t height;  // LCD 高度
+    rt_uint16_t id;      // LCD ID
+    rt_uint8_t dir;      //横屏还是竖屏控制：0，竖屏；1，横屏。
+    rt_uint16_t wramcmd; //开始写gram指令
+    rt_uint16_t setxcmd; //设置x坐标指令
+    rt_uint16_t setycmd; //设置y坐标指令
+}_lcd_dev;
 
 // LCD参数
 extern _lcd_dev lcddev; //管理LCD重要参数
@@ -49,18 +51,6 @@ extern rt_uint16_t BACK_COLOR;  //背景颜色.默认为白色
 
 #define DFT_SCAN_DIR L2R_U2D //默认的扫描方向
 
-//扫描方向定义
-#define L2R_U2D 0 //从左到右,从上到下
-#define L2R_D2U 1 //从左到右,从下到上
-#define R2L_U2D 2 //从右到左,从上到下
-#define R2L_D2U 3 //从右到左,从下到上
-
-#define U2D_L2R 4 //从上到下,从左到右
-#define U2D_R2L 5 //从上到下,从右到左
-#define D2U_L2R 6 //从下到上,从左到右
-#define D2U_R2L 7 //从下到上,从右到左
-
-#define DFT_SCAN_DIR L2R_U2D //默认的扫描方向
 
 //画笔颜色
 #define WHITE 0xFFFF
@@ -89,6 +79,7 @@ extern rt_uint16_t BACK_COLOR;  //背景颜色.默认为白色
 
 #define LGRAYBLUE 0XA651 //浅灰蓝色(中间层颜色)
 #define LBBLUE 0X2B12    //浅棕蓝色(选择条目的反色)
+#define rgb(r, g, b) (((b) >> 3) << 11 | ((g) >> 2) << 5 | ((r) >> 3))
 
 void LCD_Init(void);                                    //初始化
 void LCD_DisplayOn(void);                               //开显示
@@ -121,9 +112,13 @@ void LCD_ShowString(rt_uint16_t x, rt_uint16_t y, rt_uint16_t width,
                     rt_uint8_t *p); //显示一个字符串,12/16字体
 
 void LCD_WriteReg(rt_uint16_t LCD_Reg, rt_uint16_t LCD_RegValue);
+
 rt_uint16_t LCD_ReadReg(rt_uint16_t LCD_Reg);
+
 void LCD_WriteRAM_Prepare(void);
+
 void LCD_WriteRAM(rt_uint16_t RGB_Code);
+
 void LCD_Scan_Dir(rt_uint8_t dir);    //设置屏扫描方向
 void LCD_Display_Dir(rt_uint8_t dir); //设置屏幕显示方向
 void LCD_Set_Window(rt_uint16_t sx, rt_uint16_t sy, rt_uint16_t width,

@@ -1587,7 +1587,10 @@ add_executable(STM32F103RCT6RTTTemplate
         components/lite_gui/dc/dc.h
         components/lite_gui/font/font.h
         components/lite_gui/dc/device_dc.c
-        components/lite_gui/dc/device_dc.h)
+        components/lite_gui/dc/device_dc.h
+        components/lite_gui/widget/widget.c
+        components/lite_gui/widget/widget_dc.c
+        components/lite_gui/widget/widget_dc.h)
 
 include_directories(./include)
 include_directories(./bsp/STM32F103RCT6/drivers)
