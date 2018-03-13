@@ -12,6 +12,8 @@ led.c
 usart.c
 lcd_port.c
 lcd_basic.c
+touch_basic.c
+touch_port.c
 """)
 
 if GetDepend(['RT_USING_PIN']):

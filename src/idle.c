@@ -25,10 +25,10 @@
  * 2013-12-21     Grissiom     let rt_thread_idle_excute loop until there is no
  *                             dead thread.
  * 2016-08-09     ArdaFu       add method to get the handler of the idle thread.
+ * 2018-02-07     Bernard      lock scheduler to protect tid->cleanup.
  */
 
 #include <rthw.h>
-#include <rtthread.h>
 
 #if defined (RT_USING_HOOK)
 #ifndef RT_USING_IDLE_HOOK
@@ -123,6 +123,10 @@ void rt_thread_idle_excute(void)
 #endif
             /* remove defunct thread */
             rt_list_remove(&(thread->tlist));
+
+            /* lock scheduler to prevent scheduling in cleanup function. */
+            rt_enter_critical();
+
             /* invoke thread cleanup */
             if (thread->cleanup != RT_NULL)
                 thread->cleanup(thread);
@@ -134,11 +138,17 @@ void rt_thread_idle_excute(void)
             /* if it's a system object, not delete it */
             if (rt_object_is_systemobject((rt_object_t)thread) == RT_TRUE)
             {
+                /* unlock scheduler */
+                rt_exit_critical();
+
                 /* enable interrupt */
                 rt_hw_interrupt_enable(lock);
 
                 return;
             }
+
+            /* unlock scheduler */
+            rt_exit_critical();
         }
         else
         {

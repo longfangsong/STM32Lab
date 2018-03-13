@@ -8,16 +8,6 @@
  * 2017-11-16     ZYH          Update to common hid
  */
 
-#include <rthw.h>
-#include <rtthread.h>
-#include <rtservice.h>
-#include <rtdevice.h>
-
-#include "drivers/usb_common.h"
-#include "drivers/usb_device.h"
-
-#include "hid.h"
-
 #ifdef RT_USB_DEVICE_HID
 
 struct hid_s
@@ -486,7 +476,10 @@ static rt_err_t _function_enable(ufunction_t func)
 //
 //    _vcom_reset_state(func);
 //
-    data->ep_out->buffer            = rt_malloc(HID_RX_BUFSIZE);
+    if(data->ep_out->buffer == RT_NULL)
+    {
+        data->ep_out->buffer        = rt_malloc(HID_RX_BUFSIZE);
+    }
     data->ep_out->request.buffer    = data->ep_out->buffer;
     data->ep_out->request.size      = EP_MAXPACKET(data->ep_out);
     data->ep_out->request.req_type  = UIO_REQUEST_READ_BEST;

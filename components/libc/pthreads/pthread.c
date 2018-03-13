@@ -1,7 +1,7 @@
 /*
  * File      : pthread.c
  * This file is part of RT-Thread RTOS
- * COPYRIGHT (C) 2012, RT-Thread Development Team
+ * COPYRIGHT (C) 2012 - 2017, RT-Thread Development Team
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,10 +19,11 @@
  *
  * Change Logs:
  * Date           Author       Notes
+ * 2018-01-26     Bernard      Fix pthread_detach issue for a none-joinable
+ *                             thread.
  */
 
 #include <pthread.h>
-#include <sched.h>
 #include "pthread_internal.h"
 
 int pthread_system_init(void)
@@ -61,7 +62,7 @@ static void pthread_entry_stub(void *parameter)
     _pthread_data_t *ptd;
     void *value;
 
-    ptd = (_pthread_data_t*)parameter;
+    ptd = (_pthread_data_t *) parameter;
 
     /* execute pthread entry */
     value = ptd->thread_entry(ptd->thread_parameter);
@@ -70,8 +71,8 @@ static void pthread_entry_stub(void *parameter)
 }
 
 int pthread_create(pthread_t            *tid,
-                   const pthread_attr_t *attr, 
-                   void *(*start) (void *), void *parameter)
+                   const pthread_attr_t *attr,
+                   void *(*start)(void *), void *parameter)
 {
     int result;
     void *stack;
@@ -83,7 +84,7 @@ int pthread_create(pthread_t            *tid,
     RT_ASSERT(tid != RT_NULL);
 
     /* allocate posix thread data */
-    ptd = (_pthread_data_t*)rt_malloc(sizeof(_pthread_data_t));
+    ptd = (_pthread_data_t *) rt_malloc(sizeof(_pthread_data_t));
     if (ptd == RT_NULL)
         return ENOMEM;
     /* clean posix thread data memory */
@@ -93,9 +94,9 @@ int pthread_create(pthread_t            *tid,
     ptd->canceltype = PTHREAD_CANCEL_DEFERRED;
     ptd->magic = PTHREAD_MAGIC;
 
-    if (attr != RT_NULL)
+    if (attr != RT_NULL) {
         ptd->attr = *attr;
-    else 
+    } else
     {
         /* use default attribute */
         pthread_attr_init(&ptd->attr);
@@ -104,12 +105,13 @@ int pthread_create(pthread_t            *tid,
     rt_snprintf(name, sizeof(name), "pth%02d", pthread_number ++);
     if (ptd->attr.stack_base == 0)
     {
-        stack = (void*)rt_malloc(ptd->attr.stack_size);
+        stack = (void *) rt_malloc(ptd->attr.stack_size);
     }
-    else
-        stack = (void*)(ptd->attr.stack_base);
+    else {
+        stack = (void *) (ptd->attr.stack_base);
+    }
 
-    if (stack == RT_NULL) 
+    if (stack == RT_NULL)
     {
         rt_free(ptd);
 
@@ -139,17 +141,18 @@ int pthread_create(pthread_t            *tid,
             return ENOMEM;
         }
     }
-    else
+    else {
         ptd->joinable_sem = RT_NULL;
+    }
 
     /* set parameter */
     ptd->thread_entry = start;
     ptd->thread_parameter = parameter;
 
     /* initial this pthread to system */
-    if (rt_thread_init(ptd->tid, name, pthread_entry_stub, ptd, 
-        stack, ptd->attr.stack_size, 
-        ptd->attr.priority, 5) != RT_EOK)
+    if (rt_thread_init(ptd->tid, name, pthread_entry_stub, ptd,
+                       stack, ptd->attr.stack_size,
+                       ptd->attr.priority, 5) != RT_EOK)
     {
         if (ptd->attr.stack_base == 0)
             rt_free(stack);
@@ -187,11 +190,18 @@ RTM_EXPORT(pthread_create);
 
 int pthread_detach(pthread_t thread)
 {
-    _pthread_data_t* ptd;
+    _pthread_data_t *ptd;
 
     ptd = _pthread_get_data(thread);
 
-    if ((thread->stat & RT_THREAD_STAT_MASK)== RT_THREAD_CLOSE)
+    if (ptd->attr.detachstate == PTHREAD_CREATE_DETACHED) {
+        /* The implementation has detected that the value specified by thread does not refer
+         * to a joinable thread.
+         */
+        return EINVAL;
+    }
+
+    if ((thread->stat & RT_THREAD_STAT_MASK) == RT_THREAD_CLOSE)
     {
         /* delete joinable semaphore */
         if (ptd->joinable_sem != RT_NULL)
@@ -204,6 +214,9 @@ int pthread_detach(pthread_t thread)
         {
             /* release thread allocated stack */
             rt_free(ptd->tid->stack_addr);
+        } else {
+            /* clean stack addr pointer */
+            ptd->tid->stack_addr = RT_NULL;
         }
 
         /*
@@ -231,9 +244,8 @@ int pthread_detach(pthread_t thread)
 }
 RTM_EXPORT(pthread_detach);
 
-int pthread_join (pthread_t thread, void **value_ptr)
-{
-    _pthread_data_t* ptd;
+int pthread_join(pthread_t thread, void **value_ptr) {
+    _pthread_data_t *ptd;
     rt_err_t result;
 
     if (thread == rt_thread_self())
@@ -256,14 +268,15 @@ int pthread_join (pthread_t thread, void **value_ptr)
         /* release resource */
         pthread_detach(thread);
     }
-    else
+    else {
         return ESRCH;
-    
+    }
+
     return 0;
 }
 RTM_EXPORT(pthread_join);
 
-void pthread_exit (void *value)
+void pthread_exit(void *value)
 {
     _pthread_data_t *ptd;
     _pthread_cleanup_t *cleanup;
@@ -294,7 +307,7 @@ void pthread_exit (void *value)
     {
         void *data;
         rt_uint32_t index;
-        
+
         for (index = 0; index < PTHREAD_KEY_MAX; index ++)
         {
             if (_thread_keys[index].is_used)
@@ -323,7 +336,7 @@ void pthread_exit (void *value)
 }
 RTM_EXPORT(pthread_exit);
 
-int pthread_once(pthread_once_t *once_control, void (*init_routine) (void))
+int pthread_once(pthread_once_t *once_control, void (*init_routine)(void))
 {
     RT_ASSERT(once_control != RT_NULL);
     RT_ASSERT(init_routine != RT_NULL);
@@ -354,7 +367,7 @@ int pthread_kill(pthread_t thread, int sig)
 #ifdef RT_USING_SIGNALS
     return rt_thread_kill(thread, sig);
 #else
-	return ENOSYS;
+    return ENOSYS;
 #endif
 }
 RTM_EXPORT(pthread_kill);
@@ -362,7 +375,7 @@ RTM_EXPORT(pthread_kill);
 #ifdef RT_USING_SIGNALS
 int pthread_sigmask(int how, const sigset_t *set, sigset_t *oset)
 {
-	return sigprocmask(how, set, oset);
+    return sigprocmask(how, set, oset);
 }
 #endif
 
@@ -393,7 +406,7 @@ void pthread_cleanup_pop(int execute)
 }
 RTM_EXPORT(pthread_cleanup_pop);
 
-void pthread_cleanup_push(void (*routine)(void*), void *arg)
+void pthread_cleanup_push(void (*routine)(void *), void *arg)
 {
     _pthread_data_t *ptd;
     _pthread_cleanup_t *cleanup;
@@ -473,7 +486,7 @@ int pthread_setcanceltype(int type, int *oldtype)
     ptd = _pthread_get_data(rt_thread_self());
     RT_ASSERT(ptd != RT_NULL);
 
-    if ((type != PTHREAD_CANCEL_DEFERRED) && (type != PTHREAD_CANCEL_ASYNCHRONOUS)) 
+    if ((type != PTHREAD_CANCEL_DEFERRED) && (type != PTHREAD_CANCEL_ASYNCHRONOUS))
         return EINVAL;
 
     if (oldtype)
@@ -486,8 +499,8 @@ RTM_EXPORT(pthread_setcanceltype);
 
 void pthread_testcancel(void)
 {
-    int cancel=0;
-    _pthread_data_t* ptd;
+    int cancel = 0;
+    _pthread_data_t *ptd;
 
     /* get posix thread data */
     ptd = _pthread_get_data(rt_thread_self());
@@ -496,7 +509,7 @@ void pthread_testcancel(void)
     if (ptd->cancelstate == PTHREAD_CANCEL_ENABLE)
         cancel = ptd->canceled;
     if (cancel)
-        pthread_exit((void*)PTHREAD_CANCELED);
+        pthread_exit((void *) PTHREAD_CANCELED);
 }
 RTM_EXPORT(pthread_testcancel);
 
@@ -532,4 +545,3 @@ int pthread_cancel(pthread_t thread)
     return 0;
 }
 RTM_EXPORT(pthread_cancel);
-

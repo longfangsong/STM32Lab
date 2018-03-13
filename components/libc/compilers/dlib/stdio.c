@@ -24,13 +24,6 @@
  * 2017/10/15     bernard      implement stdio for IAR dlib.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include <rtthread.h>
-#include "libc.h"
-
 #if defined(RT_USING_DFS) && defined(RT_USING_DFS_DEVFS)
 #include <dfs_posix.h>
 
@@ -55,6 +48,10 @@ int libc_stdio_set_console(const char* device_name, int mode)
         std_fd = fd;
     }
 
+    return std_fd;
+}
+
+int libc_stdio_get_console(void) {
     return std_fd;
 }
 

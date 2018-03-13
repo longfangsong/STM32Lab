@@ -25,7 +25,7 @@ RT_USING_LCD_TYPE = 'ILI9341'
 
 if CROSS_TOOL == 'gcc':
     PLATFORM = 'gcc'
-    EXEC_PATH = '/Users/longfangsong/program_libraries/gcc-arm-none-eabi/bin/'
+    EXEC_PATH = '/Users/longfangsong/program_library/gcc-arm-none-eabi/bin/'
 
 if os.getenv('RTT_EXEC_PATH'):
     EXEC_PATH = os.getenv('RTT_EXEC_PATH')

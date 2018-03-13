@@ -31,8 +31,6 @@
  */
 
 #include <rthw.h>
-#include <rtthread.h>
-#include <rtm.h>
 
 #ifdef RT_USING_FINSH
 #include <finsh.h>
@@ -822,6 +820,15 @@ static struct rt_module* _load_relocated_object(const char *name,
                         rt_module_arm_relocate(module, rel,
                                                (Elf32_Addr)data_addr + sym->st_value);
                     }
+                }
+                else if (ELF_ST_TYPE(sym->st_info) == STT_FUNC)
+                {
+                    /* relocate function */
+                    rt_module_arm_relocate(module, rel,
+                                           (Elf32_Addr)((rt_uint8_t *)
+                                                        module->module_space
+                                                        - module_addr
+                                                        + sym->st_value));
                 }
             }
             else if (ELF_ST_TYPE(sym->st_info) == STT_FUNC)

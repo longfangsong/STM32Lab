@@ -73,13 +73,13 @@ static void wrapped_fill_rectangle(lite_gui_dc_t dc,
 static void wrapped_draw_ascii_char(lite_gui_dc_t dc,
                                     rt_uint16_t left_top_x, rt_uint16_t left_top_y,
                                     char ch) {
-    LCD_ShowChar(left_top_x, left_top_y, (rt_uint8_t) ch, 16, 0);
+    LCD_ShowChar(left_top_x, left_top_y, (rt_uint8_t) ch, 24, 0);
 }
 
 static void wrapped_draw_ascii_string(lite_gui_dc_t dc,
                                       rt_uint16_t left_top_x, rt_uint16_t left_top_y,
                                       char *string) {
-    LCD_ShowString(left_top_x, left_top_y, (rt_uint16_t) -1, (rt_uint16_t) -1, 16, (rt_uint8_t *) string);
+    LCD_ShowString(left_top_x, left_top_y, (rt_uint16_t) -1, (rt_uint16_t) -1, 24, (rt_uint8_t *) string);
 }
 
 #endif
@@ -97,6 +97,8 @@ lite_gui_device_dc_t dc_of_device(rt_device_t device) {
     device_dc->base.draw_rectangle = wrapped_draw_rectangle;
     device_dc->base.draw_circle = wrapped_draw_circle;
     device_dc->base.fill_rectangle = wrapped_fill_rectangle;
+    device_dc->base.draw_ascii_char = wrapped_draw_ascii_char;
+    device_dc->base.draw_ascii_string = wrapped_draw_ascii_string;
 #endif
     device_dc->base.background_color = 0x0000;
     device_dc->base.brush_color = 0xFFFF;

@@ -25,11 +25,10 @@
 #
 
 import os
-import sys
 import string
-
+import sys
 from SCons.Script import *
-from utils import _make_path_relative
+
 from mkdist import do_copy_file
 
 BuildOptions = {}
@@ -139,6 +138,10 @@ def PrepareBuilding(env, root_directory, has_libcpu=False, remove_components = [
         env['LIBLINKPREFIX'] = ''
         env['LIBLINKSUFFIX']   = '.lib'
         env['LIBDIRPREFIX'] = '--userlibpath '
+
+    if rtconfig.PLATFORM == 'gcc':
+        if str(env['LINKFLAGS']).find('nano.specs'):
+            env.AppendUnique(CPPDEFINES=['_REENT_SMALL'])
 
     # patch for win32 spawn
     if env['PLATFORM'] == 'win32':
@@ -746,9 +749,6 @@ def SrcRemove(src, remove):
                 src.remove(item)
 
 def GetVersion():
-    import SCons.cpp
-    import string
-
     rtdef = os.path.join(Rtt_Root, 'include', 'rtdef.h')
 
     # parse rtdef.h to get RT-Thread version

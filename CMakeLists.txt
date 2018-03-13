@@ -39,8 +39,6 @@ add_executable(STM32F103RCT6RTTTemplate
         bsp/STM32F103RCT6/drivers/stm32f1_rtc.c
         bsp/STM32F103RCT6/drivers/stm32f1_rtc.h
         bsp/STM32F103RCT6/drivers/stm32f1_wdg.c
-        bsp/STM32F103RCT6/drivers/touch.c
-        bsp/STM32F103RCT6/drivers/touch.h
         bsp/STM32F103RCT6/drivers/usart.c
         bsp/STM32F103RCT6/drivers/usart.h
         bsp/STM32F103RCT6/Libraries/CMSIS/CM3/CoreSupport/core_cm3.c
@@ -182,7 +180,6 @@ add_executable(STM32F103RCT6RTTTemplate
         components/dfs/filesystems/jffs2/include/port/sys/stat.h
         components/dfs/filesystems/jffs2/include/port/sys/types.h
         components/dfs/filesystems/jffs2/include/port/codes.h
-        components/dfs/filesystems/jffs2/include/port/fcntl.h
         components/dfs/filesystems/jffs2/kernel/asm/atomic.h
         components/dfs/filesystems/jffs2/kernel/asm/bug.h
         components/dfs/filesystems/jffs2/kernel/asm/page.h
@@ -724,7 +721,6 @@ add_executable(STM32F103RCT6RTTTemplate
         components/libc/compilers/armlibc/sys/types.h
         components/libc/compilers/armlibc/sys/unistd.h
         components/libc/compilers/armlibc/dirent.h
-        components/libc/compilers/armlibc/fcntl.h
         components/libc/compilers/armlibc/libc.c
         components/libc/compilers/armlibc/libc.h
         components/libc/compilers/armlibc/libc_syms.c
@@ -776,7 +772,6 @@ add_executable(STM32F103RCT6RTTTemplate
         components/libc/compilers/minilibc/time.c
         components/libc/compilers/minilibc/time.h
         components/libc/compilers/newlib/sys/dirent.h
-        components/libc/compilers/newlib/sys/fcntl.h
         components/libc/compilers/newlib/sys/mman.h
         components/libc/compilers/newlib/sys/statfs.h
         components/libc/compilers/newlib/sys/termios.h
@@ -1432,7 +1427,6 @@ add_executable(STM32F103RCT6RTTTemplate
         components/net/lwip_dhcpd/dhcp_server.h
         components/net/lwip_nat/ipv4_nat.c
         components/net/lwip_nat/ipv4_nat.h
-        components/net/netutils/telnet.c
         components/net/uip/apps/dhcpc/dhcpc.c
         components/net/uip/apps/dhcpc/dhcpc.h
         components/net/uip/apps/hello-world/hello-world.c
@@ -1555,10 +1549,6 @@ add_executable(STM32F103RCT6RTTTemplate
         include/rtm.h
         include/rtservice.h
         include/rtthread.h
-        libcpu/arm/common/backtrace.c
-        libcpu/arm/common/div0.c
-        libcpu/arm/common/divsi3.S
-        libcpu/arm/common/showmem.c
         libcpu/arm/cortex-m3/context_gcc.S
         libcpu/arm/cortex-m3/context_iar.S
         libcpu/arm/cortex-m3/context_rvds.S
@@ -1590,7 +1580,7 @@ add_executable(STM32F103RCT6RTTTemplate
         components/lite_gui/dc/device_dc.h
         components/lite_gui/widget/widget.c
         components/lite_gui/widget/widget_dc.c
-        components/lite_gui/widget/widget_dc.h)
+        components/lite_gui/widget/widget_dc.h bsp/STM32F103RCT6/drivers/touch_basic.c bsp/STM32F103RCT6/drivers/touch_basic.h bsp/STM32F103RCT6/drivers/touch_port.c bsp/STM32F103RCT6/drivers/touch_port.h)
 
 include_directories(./include)
 include_directories(./bsp/STM32F103RCT6/drivers)
@@ -1601,3 +1591,4 @@ include_directories(./components/drivers/include)
 include_directories(./components/lite_gui/dc)
 include_directories(./components/lite_gui/font)
 include_directories(./components/lite_gui/gui)
+include_directories(./bsp/STM32F103RCT6/Libraries/CMSIS/CM3/CoreSupport/)

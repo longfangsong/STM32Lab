@@ -24,10 +24,7 @@
  * 2017/10/15     bernard      the first version
  */
 #include <rtthread.h>
-#include <stdio.h>
 #include <stdlib.h>
-#include <fcntl.h>
-#include <sys/time.h>
 
 #include "libc.h"
 
@@ -37,7 +34,7 @@
 
 int libc_system_init(void)
 {
-#ifdef RT_USING_DFS
+#if defined(RT_USING_DFS) & defined(RT_USING_DFS_DEVFS)
     rt_device_t dev_console;
 
     dev_console = rt_console_get_device();

@@ -1,13 +1,11 @@
 #!/usr/bin/env python
 
-import sys
-import os
-
-import struct
-from collections import namedtuple
-import StringIO
-
 import argparse
+import os
+import struct
+import sys
+from collections import namedtuple
+
 parser = argparse.ArgumentParser()
 parser.add_argument('rootdir', type=str, help='the path to rootfs')
 parser.add_argument('output', type=argparse.FileType('wb'), nargs='?', help='output file name')
@@ -50,7 +48,7 @@ class File(object):
         return bytes(self._data)
 
     def dump(self, indent=0):
-        print '%s%s' % (' ' * indent, self._name)
+        print('%s%s' % (' ' * indent, self._name))
 
 class Folder(object):
     bin_fmt = struct.Struct('IIII')
@@ -108,7 +106,7 @@ class Folder(object):
                 c.sort()
 
     def dump(self, indent=0):
-        print '%s%s' % (' ' * indent, self._name)
+        print('%s%s' % (' ' * indent, self._name))
         for c in self._children:
             c.dump(indent + 1)
 

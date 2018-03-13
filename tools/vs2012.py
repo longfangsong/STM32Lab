@@ -24,15 +24,14 @@
 
 import os
 import sys
-import string
-import building
 import uuid
-
 import xml.etree.ElementTree as etree
 from xml.etree.ElementTree import SubElement
+
+import building
+import utils
 from utils import _make_path_relative
 from utils import xml_indent
-import utils
 
 fs_encoding = sys.getfilesystemencoding()
 
@@ -134,7 +133,7 @@ def VS_add_HeadFiles(program, elem, project_path):
     ItemGroup = SubElement(elem, 'ItemGroup')
 
     filter_h_ItemGroup = SubElement(filter_project, 'ItemGroup')
-    for f in building.source_list:
+    for f in utils.source_list:
         path = _make_path_relative(project_path, f)
         File = SubElement(ItemGroup, 'ClInclude')
         File.set('Include', path.decode(fs_encoding))

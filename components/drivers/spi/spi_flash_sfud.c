@@ -22,11 +22,6 @@
  * 2016-09-28     armink       first version.
  */
 
-#include <stdint.h>
-#include <rtdevice.h>
-#include "spi_flash.h"
-#include "spi_flash_sfud.h"
-
 #ifdef RT_USING_SFUD
 
 #if RT_DEBUG_SFUD
@@ -93,7 +88,7 @@ static rt_err_t rt_sfud_control(rt_device_t dev, int cmd, void *args) {
 static rt_size_t rt_sfud_read(rt_device_t dev, rt_off_t pos, void* buffer, rt_size_t size) {
     struct spi_flash_device *rtt_dev = (struct spi_flash_device *) (dev->user_data);
     sfud_flash *sfud_dev = (sfud_flash *) (rtt_dev->user_data);
-    /* change the block device¡¯s logic address to physical address */
+    /* change the block deviceï¿½ï¿½s logic address to physical address */
     rt_off_t phy_pos = pos * rtt_dev->geometry.bytes_per_sector;
     rt_size_t phy_size = size * rtt_dev->geometry.bytes_per_sector;
 
@@ -107,7 +102,7 @@ static rt_size_t rt_sfud_read(rt_device_t dev, rt_off_t pos, void* buffer, rt_si
 static rt_size_t rt_sfud_write(rt_device_t dev, rt_off_t pos, const void* buffer, rt_size_t size) {
     struct spi_flash_device *rtt_dev = (struct spi_flash_device *) (dev->user_data);
     sfud_flash *sfud_dev = (sfud_flash *) (rtt_dev->user_data);
-    /* change the block device¡¯s logic address to physical address */
+    /* change the block deviceï¿½ï¿½s logic address to physical address */
     rt_off_t phy_pos = pos * rtt_dev->geometry.bytes_per_sector;
     rt_size_t phy_size = size * rtt_dev->geometry.bytes_per_sector;
 
@@ -250,8 +245,13 @@ rt_spi_flash_device_t rt_sfud_flash_probe(const char *spi_flash_dev_name, const 
     spi_flash_dev_name_bak = (char *) rt_malloc(rt_strlen(spi_flash_dev_name) + 1);
     spi_dev_name_bak = (char *) rt_malloc(rt_strlen(spi_dev_name) + 1);
 
-    if (rtt_dev && sfud_dev && spi_flash_dev_name_bak && spi_dev_name_bak) {
+    if (rtt_dev) {
         rt_memset(rtt_dev, 0, sizeof(struct spi_flash_device));
+        /* initialize lock */
+        rt_mutex_init(&(rtt_dev->lock), spi_flash_dev_name, RT_IPC_FLAG_FIFO);
+    }
+    
+    if (rtt_dev && sfud_dev && spi_flash_dev_name_bak && spi_dev_name_bak) {
         rt_memset(sfud_dev, 0, sizeof(sfud_flash));
         rt_strncpy(spi_flash_dev_name_bak, spi_flash_dev_name, rt_strlen(spi_flash_dev_name));
         rt_strncpy(spi_dev_name_bak, spi_dev_name, rt_strlen(spi_dev_name));
@@ -268,8 +268,6 @@ rt_spi_flash_device_t rt_sfud_flash_probe(const char *spi_flash_dev_name, const 
             }
             sfud_dev->spi.name = spi_dev_name_bak;
             rt_spi_configure(rtt_dev->rt_spi_device, &cfg);
-            /* initialize lock */
-            rt_mutex_init(&(rtt_dev->lock), spi_flash_dev_name, RT_IPC_FLAG_FIFO);
         }
         /* SFUD flash device initialize */
         {
@@ -308,6 +306,10 @@ rt_spi_flash_device_t rt_sfud_flash_probe(const char *spi_flash_dev_name, const 
     }
 
 error:
+
+    if (rtt_dev) {
+        rt_mutex_detach(&(rtt_dev->lock));
+    }
     /* may be one of objects memory was malloc success, so need free all */
     rt_free(rtt_dev);
     rt_free(sfud_dev);

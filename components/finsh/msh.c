@@ -29,10 +29,6 @@
  * 2017-07-19     Aubr.Cool    limit argc to RT_FINSH_ARG_MAX
  */
 
-#include "msh.h"
-#include <finsh.h>
-#include <shell.h>
-
 #ifdef RT_USING_DFS
 #include <dfs_posix.h>
 #endif
@@ -405,7 +401,10 @@ void msh_auto_complete_path(char *path)
     ptr = path;
     for (;;)
     {
-        if (*ptr == '/') index = ptr + 1; if (!*ptr) break; ptr ++;
+        if (*ptr == '/') index = ptr + 1; 
+        if (!*ptr) break; 
+
+        ptr ++;
     }
     if (index == RT_NULL) index = path;
 

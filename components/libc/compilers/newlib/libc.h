@@ -39,6 +39,8 @@
 int libc_system_init(void);
 int libc_stdio_set_console(const char* device_name, int mode);
 
+int libc_stdio_get_console(void);
+
 /* some time related function */
 int libc_set_time(const struct timespec *time);
 int libc_get_time(struct timespec *time);
