@@ -4,8 +4,10 @@
 #include <rtm.h>
 #include <misc.h>
 #include <rthw.h>
+#include <lite_gui.h>
 #include "touch_basic.h"
 #include "touch_port.h"
+#include "lcd_basic.h"
 
 #define TOUCH_GPIO GPIOC
 #define PEN_PIN GPIO_Pin_1
@@ -30,6 +32,8 @@ void (*pen_up_handler)();
 #define READ_Z1 0XB0
 // Z2: 力量越大读数越小
 #define READ_Z2 0XC0
+#define X_SIZE 240
+#define Y_SIZE 320
 
 static void __touch_init() {
     GPIO_InitTypeDef GPIO_InitStructure;
@@ -50,6 +54,60 @@ static void __touch_init() {
 
 static u16 read_value_with_check(u8 read_what);
 
+double x_fact, x_offset;
+double y_fact, y_offset;
+
+static u16 read_raw_value_of(u8 read_what);
+
+void touch_calibrate(lite_gui_device_dc_t dc) {
+    EXTI->IMR &= 0xFFFFFFFD;
+    u16 lt_x, lt_y;
+    u16 rt_x, rt_y;
+    u16 lb_x, lb_y;
+    u16 dc_origin_background = dc->base.background_color;
+    dc->base.brush_color = rgb(255, 0, 0);
+    dc->base.background_color = rgb(255, 255, 255);
+    dc->base.clear((struct lite_gui_dc *) dc);
+    dc->base.fill_circle((struct lite_gui_dc *) dc, 20, 20, 2);
+    dc->base.draw_circle((struct lite_gui_dc *) dc, 20, 20, 5);
+    dc->base.draw_horizontal_line((struct lite_gui_dc *) dc, 10, 30, 20);
+    dc->base.draw_vertical_line((struct lite_gui_dc *) dc, 20, 10, 30);
+    while (GPIO_ReadInputDataBit(TOUCH_GPIO, PEN_PIN));
+    rt_thread_delay(1);
+    lt_x = read_raw_value_of(READ_X);
+    lt_y = read_raw_value_of(READ_Y);
+    while (!GPIO_ReadInputDataBit(TOUCH_GPIO, PEN_PIN));
+    rt_thread_delay(1);
+    dc->base.clear((struct lite_gui_dc *) dc);
+    dc->base.fill_circle((struct lite_gui_dc *) dc, 220, 20, 2);
+    dc->base.draw_circle((struct lite_gui_dc *) dc, 220, 20, 5);
+    dc->base.draw_horizontal_line((struct lite_gui_dc *) dc, 210, 230, 20);
+    dc->base.draw_vertical_line((struct lite_gui_dc *) dc, 220, 10, 30);
+    while (GPIO_ReadInputDataBit(TOUCH_GPIO, PEN_PIN));
+    rt_thread_delay(1);
+    rt_x = read_raw_value_of(READ_X);
+    rt_y = read_raw_value_of(READ_Y);
+    while (!GPIO_ReadInputDataBit(TOUCH_GPIO, PEN_PIN));
+    rt_thread_delay(1);
+    dc->base.clear((struct lite_gui_dc *) dc);
+    dc->base.fill_circle((struct lite_gui_dc *) dc, 20, 300, 2);
+    dc->base.draw_circle((struct lite_gui_dc *) dc, 20, 300, 5);
+    dc->base.draw_horizontal_line((struct lite_gui_dc *) dc, 10, 30, 300);
+    dc->base.draw_vertical_line((struct lite_gui_dc *) dc, 20, 290, 310);
+    while (GPIO_ReadInputDataBit(TOUCH_GPIO, PEN_PIN));
+    rt_thread_delay(1);
+    lb_x = read_raw_value_of(READ_X);
+    lb_y = read_raw_value_of(READ_Y);
+    while (!GPIO_ReadInputDataBit(TOUCH_GPIO, PEN_PIN));
+    x_fact = 200.0 / (rt_x - lt_x);
+    y_fact = 280.0 / (lb_y - lt_y);
+    x_offset = 20 * (11 * lt_x - rt_x) / (lt_x - rt_x);
+    y_offset = 20 * (15 * lt_y - lb_y) / (lt_y - lb_y);
+    dc->base.brush_color = dc_origin_background;
+    dc->base.clear((struct lite_gui_dc *) dc);
+    EXTI->IMR = 0xFFFFFFFF;
+}
+
 static void process_pen(void *parameter) {
     while (1) {
         rt_uint32_t event;
@@ -61,10 +119,7 @@ static void process_pen(void *parameter) {
                 u16 x = read_value_with_check(READ_X);
                 u16 y = read_value_with_check(READ_Y);
                 u16 z = read_value_with_check(READ_Z2) - read_value_with_check(READ_Z1);
-                if (100 < x && x < 5000 &&
-                    100 < y && y < 5000 &&
-                    100 < z && z < 5000)
-                    pen_down(x, y, z);
+                pen_down(x, y, z);
             } else {
                 pen_up();
             }
@@ -135,7 +190,7 @@ void rt_hw_us_delay(rt_uint32_t us) {
     while (delta - SysTick->VAL < us);
 }
 
-static u16 read_value_of(u8 read_what) {
+static u16 read_raw_value_of(u8 read_what) {
     u16 result = 0;
     GPIO_ResetBits(GPIOC, CLK_PIN);
     GPIO_ResetBits(GPIOC, MOSI_PIN);
@@ -155,6 +210,22 @@ static u16 read_value_of(u8 read_what) {
     }
     result >>= 4;
     GPIO_SetBits(GPIOC, CS_PIN);
+    return result;
+}
+
+static u16 read_value_of(u8 read_what) {
+    u16 result = read_raw_value_of(read_what);
+    if (read_what == READ_X) {
+        if (result * x_fact + x_offset < 0) {
+            return 0;
+        }
+        result = (u16) (result * x_fact + x_offset);
+    } else if (read_what == READ_Y) {
+        if (result * y_fact + y_offset < 0) {
+            return 0;
+        }
+        result = (u16) (result * y_fact + y_offset);
+    }
     return result;
 }
 

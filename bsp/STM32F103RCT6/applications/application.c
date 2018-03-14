@@ -17,8 +17,8 @@
 #include <rtthread.h>
 #include <lcd_port.h>
 #include <lite_gui.h>
-#include <touch_basic.h>
 #include <touch_port.h>
+#include <EEPROM_port.h>
 #include "../../../components/lite_gui/widget/widget_dc.h"
 
 #ifdef RT_USING_DFS
@@ -34,14 +34,18 @@ ALIGN(RT_ALIGN_SIZE)
 lite_gui_dc_t all_dc;
 
 void press(u16 x, u16 y, u16 z) {
-    all_dc->draw_ascii_string(all_dc, 0, 0, "clicked  ");
-//    all_dc->fill_circle(all_dc, 10, 10, 5);
+//    all_dc->draw_ascii_string(all_dc, 0, 0, "clicked  ");
+    char buf[50];
+    rt_sprintf(buf, "press-%4d,%4d,%4d", x, y, z);
+    all_dc->draw_ascii_string(all_dc, 0, 0, buf);
 }
 
 void drag(u16 from_x, u16 from_y, u16 from_z,
           u16 to_x, u16 to_y, u16 to_z) {
-    all_dc->draw_ascii_string((struct lite_gui_dc *) all_dc, 0, 0, "dragging");
-//    all_dc->fill_circle(all_dc, 20, 20, 5);
+//    all_dc->draw_ascii_string((struct lite_gui_dc *) all_dc, 0, 0, "dragging");
+    char buf[50];
+    rt_sprintf(buf, "drag- %4d,%4d,%4d", to_x, to_y, to_z);
+    all_dc->draw_ascii_string(all_dc, 0, 0, buf);
 }
 
 void rt_init_thread_entry(void *parameter) {
@@ -72,6 +76,7 @@ void rt_init_thread_entry(void *parameter) {
     all_dc->brush_color = rgb(155, 0, 255);
     all_dc->clear((struct lite_gui_dc *) all_dc);
     all_dc->brush_color = rgb(0, 155, 255);
+    all_dc->background_color = rgb(155, 0, 255);
     dock_dc->base.brush_color = rgb(0, 155, 255);
     dock_dc->base.clear((struct lite_gui_dc *) dock_dc);
     dock_dc->base.brush_color = rgb(173, 255, 255);
@@ -83,7 +88,9 @@ void rt_init_thread_entry(void *parameter) {
     struct touch_event_handler h = {
             press, drag
     };
+    EEPROM_hw_init();
     touch_init(h);
+    touch_calibrate((lite_gui_device_dc_t) hardware_dc);
 #endif
 }
 

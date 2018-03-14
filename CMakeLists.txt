@@ -1580,7 +1580,7 @@ add_executable(STM32F103RCT6RTTTemplate
         components/lite_gui/dc/device_dc.h
         components/lite_gui/widget/widget.c
         components/lite_gui/widget/widget_dc.c
-        components/lite_gui/widget/widget_dc.h bsp/STM32F103RCT6/drivers/touch_basic.c bsp/STM32F103RCT6/drivers/touch_basic.h bsp/STM32F103RCT6/drivers/touch_port.c bsp/STM32F103RCT6/drivers/touch_port.h)
+        components/lite_gui/widget/widget_dc.h bsp/STM32F103RCT6/drivers/touch_basic.c bsp/STM32F103RCT6/drivers/touch_basic.h bsp/STM32F103RCT6/drivers/touch_port.c bsp/STM32F103RCT6/drivers/touch_port.h bsp/STM32F103RCT6/drivers/EEPROM_basic.c bsp/STM32F103RCT6/drivers/EEPROM_basic.h bsp/STM32F103RCT6/drivers/EEPROM_port.c bsp/STM32F103RCT6/drivers/EEPROM_port.h)
 
 include_directories(./include)
 include_directories(./bsp/STM32F103RCT6/drivers)

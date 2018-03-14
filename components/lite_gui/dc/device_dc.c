@@ -73,13 +73,15 @@ static void wrapped_fill_rectangle(lite_gui_dc_t dc,
 static void wrapped_draw_ascii_char(lite_gui_dc_t dc,
                                     rt_uint16_t left_top_x, rt_uint16_t left_top_y,
                                     char ch) {
-    LCD_ShowChar(left_top_x, left_top_y, (rt_uint8_t) ch, 24, 0);
+    LCD_ShowChar(left_top_x, left_top_y, (rt_uint8_t) ch, 16, 0);
 }
 
 static void wrapped_draw_ascii_string(lite_gui_dc_t dc,
                                       rt_uint16_t left_top_x, rt_uint16_t left_top_y,
                                       char *string) {
-    LCD_ShowString(left_top_x, left_top_y, (rt_uint16_t) -1, (rt_uint16_t) -1, 24, (rt_uint8_t *) string);
+    BACK_COLOR = dc->background_color;
+    POINT_COLOR = dc->brush_color;
+    LCD_ShowString(left_top_x, left_top_y, (rt_uint16_t) -1, (rt_uint16_t) -1, 16, (rt_uint8_t *) string);
 }
 
 #endif

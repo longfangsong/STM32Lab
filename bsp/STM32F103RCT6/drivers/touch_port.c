@@ -49,7 +49,9 @@ static int abs(int x) {
     return x >= 0 ? x : -x;
 }
 
+
 void pen_down(u16 x, u16 y, u16 z) {
+    rt_kprintf("r:%d,%d,%d\n", x, y, z);
     if (state == UNINIT) {
         for (u8 i = 0; i < HISTORY_SIZE; ++i) {
             pen_history[i][0] = x;
@@ -66,10 +68,10 @@ void pen_down(u16 x, u16 y, u16 z) {
     pen_history[0][0] = x;
     pen_history[0][1] = y;
     pen_history[0][2] = z;
-    if (state == CLICK && (abs(pen_history[0][0] - pen_history[1][0]) > 60 ||
-                           abs(pen_history[0][1] - pen_history[1][1]) > 60)
-        && (abs(pen_history[1][0] - pen_history[2][0]) > 30 ||
-            abs(pen_history[1][1] - pen_history[2][1]) > 30)) {
+    if (state == CLICK && (abs(pen_history[0][0] - pen_history[1][0]) > 5 ||
+                           abs(pen_history[0][1] - pen_history[1][1]) > 5)
+        && (abs(pen_history[1][0] - pen_history[2][0]) > 3 ||
+            abs(pen_history[1][1] - pen_history[2][1]) > 3)) {
         ++drag_vote;
         if (drag_vote > 5)
             state = DRAG;

@@ -5,20 +5,25 @@ static void clear_default_impl(lite_gui_dc_t dc) {
     rt_int16_t x0 = ((lite_gui_widget_dc_t) (dc))->x_from_parent;
     rt_int16_t y0 = ((lite_gui_widget_dc_t) (dc))->y_from_parent;
     rt_uint16_t parent_origin_color = parent->brush_color;
+    rt_uint16_t parent_origin_background_color = parent->background_color;
     parent->brush_color = dc->brush_color;
+    parent->background_color = dc->background_color;
     parent->fill_rectangle(dc, (rt_uint16_t) x0, (rt_uint16_t) y0, x0 + dc->width, y0 + dc->height);
     parent->brush_color = parent_origin_color;
+    parent->background_color = parent_origin_background_color;
 }
 
 static void draw_point_default_impl(lite_gui_dc_t dc, rt_uint16_t x, rt_uint16_t y) {
     lite_gui_dc_t parent = ((lite_gui_widget_dc_t) (dc))->parent;
     rt_uint16_t parent_origin_color = parent->brush_color;
+    rt_uint16_t parent_origin_background_color = parent->background_color;
     parent->brush_color = dc->background_color;
+    parent->background_color = dc->background_color;
     parent->draw_point(parent,
                        x + ((lite_gui_widget_dc_t) (dc))->x_from_parent,
                        y + ((lite_gui_widget_dc_t) (dc))->y_from_parent);
     parent->brush_color = parent_origin_color;
-
+    parent->background_color = parent_origin_background_color;
 }
 
 static void draw_horizontal_line_default_impl(lite_gui_dc_t dc, rt_uint16_t from_x, rt_uint16_t to_x, rt_uint16_t y) {
@@ -26,9 +31,12 @@ static void draw_horizontal_line_default_impl(lite_gui_dc_t dc, rt_uint16_t from
     rt_int16_t dx = ((lite_gui_widget_dc_t) (dc))->x_from_parent;
     rt_int16_t dy = ((lite_gui_widget_dc_t) (dc))->y_from_parent;
     rt_uint16_t parent_origin_color = parent->brush_color;
+    rt_uint16_t parent_origin_background_color = parent->background_color;
     parent->brush_color = dc->brush_color;
+    parent->background_color = dc->background_color;
     parent->draw_horizontal_line(parent, from_x + dx, to_x + dx, y + dy);
     parent->brush_color = parent_origin_color;
+    parent->background_color = parent_origin_background_color;
 }
 
 static void draw_vertical_line_default_impl(lite_gui_dc_t dc, rt_uint16_t x, rt_uint16_t from_y, rt_uint16_t to_y) {
@@ -36,9 +44,12 @@ static void draw_vertical_line_default_impl(lite_gui_dc_t dc, rt_uint16_t x, rt_
     rt_int16_t dx = ((lite_gui_widget_dc_t) (dc))->x_from_parent;
     rt_int16_t dy = ((lite_gui_widget_dc_t) (dc))->y_from_parent;
     rt_uint16_t parent_origin_color = parent->brush_color;
+    rt_uint16_t parent_origin_background_color = parent->background_color;
     parent->brush_color = dc->brush_color;
+    parent->background_color = dc->background_color;
     parent->draw_vertical_line(parent, x + dx, from_y + dy, to_y + dy);
     parent->brush_color = parent_origin_color;
+    parent->background_color = parent_origin_background_color;
 }
 
 static void draw_rectangle_default_impl(lite_gui_dc_t dc,
@@ -48,10 +59,13 @@ static void draw_rectangle_default_impl(lite_gui_dc_t dc,
     rt_int16_t dx = ((lite_gui_widget_dc_t) (dc))->x_from_parent;
     rt_int16_t dy = ((lite_gui_widget_dc_t) (dc))->y_from_parent;
     rt_uint16_t parent_origin_color = parent->brush_color;
+    rt_uint16_t parent_origin_background_color = parent->background_color;
     parent->brush_color = dc->brush_color;
+    parent->background_color = dc->background_color;
     parent->draw_rectangle(parent, left_top_x + dx, left_top_y + dy, right_bottom_x + dx,
                            right_bottom_y + dy);
     parent->brush_color = parent_origin_color;
+    parent->background_color = parent_origin_background_color;
 }
 
 static void fill_rectangle_default_impl(lite_gui_dc_t dc,
@@ -61,10 +75,13 @@ static void fill_rectangle_default_impl(lite_gui_dc_t dc,
     rt_int16_t dx = ((lite_gui_widget_dc_t) (dc))->x_from_parent;
     rt_int16_t dy = ((lite_gui_widget_dc_t) (dc))->y_from_parent;
     rt_uint16_t parent_origin_color = parent->brush_color;
+    rt_uint16_t parent_origin_background_color = parent->background_color;
     parent->brush_color = dc->brush_color;
+    parent->background_color = dc->background_color;
     parent->fill_rectangle(parent, left_top_x + dx, left_top_y + dy, right_bottom_x + dx,
                            right_bottom_y + dy);
     parent->brush_color = parent_origin_color;
+    parent->background_color = parent_origin_background_color;
 }
 
 static void draw_line_default_impl(lite_gui_dc_t dc,
@@ -74,9 +91,12 @@ static void draw_line_default_impl(lite_gui_dc_t dc,
     rt_int16_t dx = ((lite_gui_widget_dc_t) (dc))->x_from_parent;
     rt_int16_t dy = ((lite_gui_widget_dc_t) (dc))->y_from_parent;
     rt_uint16_t parent_origin_color = parent->brush_color;
+    rt_uint16_t parent_origin_background_color = parent->background_color;
     parent->brush_color = dc->brush_color;
+    parent->background_color = dc->background_color;
     parent->draw_line(parent, x0 + dx, y0 + dy, x1 + dx, y1 + dy);
     parent->brush_color = parent_origin_color;
+    parent->background_color = parent_origin_background_color;
 }
 
 static void draw_circle_default_impl(lite_gui_dc_t dc, rt_uint16_t center_x, rt_uint16_t center_y,
@@ -85,9 +105,12 @@ static void draw_circle_default_impl(lite_gui_dc_t dc, rt_uint16_t center_x, rt_
     rt_int16_t dx = ((lite_gui_widget_dc_t) (dc))->x_from_parent;
     rt_int16_t dy = ((lite_gui_widget_dc_t) (dc))->y_from_parent;
     rt_uint16_t parent_origin_color = parent->brush_color;
+    rt_uint16_t parent_origin_background_color = parent->background_color;
     parent->brush_color = dc->brush_color;
+    parent->background_color = dc->background_color;
     parent->draw_circle(parent, center_x + dx, center_y + dy, radius);
     parent->brush_color = parent_origin_color;
+    parent->background_color = parent_origin_background_color;
 }
 
 static void fill_circle_default_impl(lite_gui_dc_t dc, rt_uint16_t center_x, rt_uint16_t center_y,
@@ -96,9 +119,12 @@ static void fill_circle_default_impl(lite_gui_dc_t dc, rt_uint16_t center_x, rt_
     rt_int16_t dx = ((lite_gui_widget_dc_t) (dc))->x_from_parent;
     rt_int16_t dy = ((lite_gui_widget_dc_t) (dc))->y_from_parent;
     rt_uint16_t parent_origin_color = parent->brush_color;
+    rt_uint16_t parent_origin_background_color = parent->background_color;
     parent->brush_color = dc->brush_color;
+    parent->background_color = dc->background_color;
     parent->fill_circle(parent, center_x + dx, center_y + dy, radius);
     parent->brush_color = parent_origin_color;
+    parent->background_color = parent_origin_background_color;
 }
 
 static void draw_rounded_rectangle_default_impl(lite_gui_dc_t dc,
@@ -109,11 +135,14 @@ static void draw_rounded_rectangle_default_impl(lite_gui_dc_t dc,
     rt_int16_t dx = ((lite_gui_widget_dc_t) (dc))->x_from_parent;
     rt_int16_t dy = ((lite_gui_widget_dc_t) (dc))->y_from_parent;
     rt_uint16_t parent_origin_color = parent->brush_color;
+    rt_uint16_t parent_origin_background_color = parent->background_color;
     parent->brush_color = dc->brush_color;
+    parent->background_color = dc->background_color;
     parent->draw_rounded_rectangle(parent, left_top_x + dx, left_top_y + dy,
                                    right_bottom_x + dx, right_bottom_y + dy,
                                    round_radius);
     parent->brush_color = parent_origin_color;
+    parent->background_color = parent_origin_background_color;
 }
 
 static void fill_rounded_rectangle_default_impl(lite_gui_dc_t dc,
@@ -124,11 +153,14 @@ static void fill_rounded_rectangle_default_impl(lite_gui_dc_t dc,
     rt_int16_t dx = ((lite_gui_widget_dc_t) (dc))->x_from_parent;
     rt_int16_t dy = ((lite_gui_widget_dc_t) (dc))->y_from_parent;
     rt_uint16_t parent_origin_color = parent->brush_color;
+    rt_uint16_t parent_origin_background_color = parent->background_color;
     parent->brush_color = dc->brush_color;
+    parent->background_color = dc->background_color;
     parent->fill_rounded_rectangle(parent, left_top_x + dx, left_top_y + dy,
                                    right_bottom_x + dx, right_bottom_y + dy,
                                    round_radius);
     parent->brush_color = parent_origin_color;
+    parent->background_color = parent_origin_background_color;
 }
 
 static void draw_ascii_char_default_impl(lite_gui_dc_t dc,
@@ -138,9 +170,12 @@ static void draw_ascii_char_default_impl(lite_gui_dc_t dc,
     rt_int16_t dx = ((lite_gui_widget_dc_t) (dc))->x_from_parent;
     rt_int16_t dy = ((lite_gui_widget_dc_t) (dc))->y_from_parent;
     rt_uint16_t parent_origin_color = parent->brush_color;
+    rt_uint16_t parent_origin_background_color = parent->background_color;
     parent->brush_color = dc->brush_color;
+    parent->background_color = dc->background_color;
     parent->draw_ascii_char(parent, left_top_x + dx, left_top_y + dy, ch);
     parent->brush_color = parent_origin_color;
+    parent->background_color = parent_origin_background_color;
 }
 
 static void draw_ascii_string_default_impl(lite_gui_dc_t dc, rt_uint16_t left_top_x, rt_uint16_t left_top_y,
@@ -149,9 +184,12 @@ static void draw_ascii_string_default_impl(lite_gui_dc_t dc, rt_uint16_t left_to
     rt_int16_t dx = ((lite_gui_widget_dc_t) (dc))->x_from_parent;
     rt_int16_t dy = ((lite_gui_widget_dc_t) (dc))->y_from_parent;
     rt_uint16_t parent_origin_color = parent->brush_color;
+    rt_uint16_t parent_origin_background_color = parent->background_color;
     parent->brush_color = dc->brush_color;
+    parent->background_color = dc->background_color;
     parent->draw_ascii_string(parent, left_top_x + dx, left_top_y + dy, string);
     parent->brush_color = parent_origin_color;
+    parent->background_color = parent_origin_background_color;
 }
 
 lite_gui_widget_dc_t
